@@ -1,0 +1,67 @@
+package kuke.cache.service.strategy.springcacheannotation;
+
+import kuke.cache.common.cache.CacheStrategy;
+import kuke.cache.model.ItemCreateRequest;
+import kuke.cache.model.ItemUpdateRequest;
+import kuke.cache.service.ItemCacheService;
+import kuke.cache.service.ItemService;
+import kuke.cache.service.response.ItemPageResponse;
+import kuke.cache.service.response.ItemResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class ItemSpringCacheAnnotationCacheService implements ItemCacheService {
+    private final ItemService itemService;
+
+    @Override
+    @Cacheable(cacheNames = "item", key = "#itemId")
+    public ItemResponse read(Long itemId) {
+        return itemService.read(itemId);
+    }
+
+    @Override
+    @Cacheable(cacheNames = "itemList", key = "#page + ':' + #pageSize")
+    public ItemPageResponse readAll(Long page, Long pageSize) {
+        return itemService.readAll(page, pageSize);
+    }
+
+    @Override
+    @Cacheable(cacheNames = "itemListInfiniteScroll", key = "#lastItemId + ':' + #pageSize")
+    public ItemPageResponse readAllInfiniteScroll(Long lastItemId, Long pageSize) {
+        return itemService.readAllInfiniteScroll(lastItemId, pageSize);
+    }
+
+    /**
+     * 생성 시점에 캐시를 갱신할 수도 있지만, 즉시 접근되지 않는 데이터라면 조회 시점에 캐시를 갱신해줘도 충분하다.
+     */
+    @Override
+    public ItemResponse create(ItemCreateRequest request) {
+        return itemService.create(request);
+    }
+
+    /**
+     * 즉시 접근되지 않는 데이터라면 조회 시점에 캐시를 갱신해줘도 충분하다.
+     * 현재는 @CachePut 어노테이션 선언을 했기 때문에 즉시 갱신하는 방법이다.
+     */
+    @Override
+    @CachePut(cacheNames = "item", key = "#itemId")
+    public ItemResponse update(Long itemId, ItemUpdateRequest request) {
+        return itemService.update(itemId, request);
+    }
+
+    @Override
+    @CacheEvict(cacheNames = "item", key = "#itemId")
+    public void delete(Long itemId) {
+        itemService.delete(itemId);
+    }
+
+    @Override
+    public boolean supports(CacheStrategy cacheStrategy) {
+        return CacheStrategy.SPRING_CACHE_ANNOTATION == cacheStrategy;
+    }
+}

@@ -1,7 +1,8 @@
 package kuke.cache.common.repository;
 
-import kuke.cache.common.model.Item;
-import kuke.cache.common.model.ItemCreateRequest;
+import kuke.cache.model.Item;
+import kuke.cache.model.ItemCreateRequest;
+import kuke.cache.repository.ItemRepository;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

@@ -11,7 +11,7 @@ class DataSerializerTest {
     void serde() {
         MyData myData = new MyData("id", "data");
         String serialized = DataSerializer.serializeOrException(myData);
-        MyData deserialized = DataSerializer.deserializerOrNull(serialized, MyData.class);
+        MyData deserialized = DataSerializer.deserializeOrNull(serialized, MyData.class);
 
         assertThat(deserialized).isEqualTo(myData);
     }
